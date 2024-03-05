@@ -1,0 +1,26 @@
+{
+  "name": "algorithms-lab2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jokkeeerrz/Algorithms-Lab2.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Jokkeeerrz/Algorithms-Lab2/issues"
+  },
+  "homepage": "https://github.com/Jokkeeerrz/Algorithms-Lab2#readme",
+  "dependencies": {
+    "@types/node": "^20.11.24",
+    "p5": "^1.9.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  }
+}

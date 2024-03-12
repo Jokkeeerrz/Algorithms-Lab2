@@ -4,7 +4,37 @@ const width: number = 800;
 const height: number = 500;
 const padding: number = 50;
 
-let sketch = function (p) {
+let sketch = function (p: p5) {
+  function mergeSort(arr: Point[]): Point[] {
+    if (arr.length <= 1) {
+      return arr;
+    }
+
+    const mid = Math.floor(arr.length / 2);
+    const left = arr.slice(0, mid);
+    const right = arr.slice(mid);
+
+    return merge(mergeSort(left), mergeSort(right));
+  }
+
+  function merge(left: Point[], right: Point[]): Point[] {
+    let result: Point[] = [];
+    let leftIndex = 0;
+    let rightIndex = 0;
+
+    while (leftIndex < left.length && rightIndex < right.length) {
+      if (left[leftIndex].x < right[rightIndex].x) {
+        result.push(left[leftIndex]);
+        leftIndex++;
+      } else {
+        result.push(right[rightIndex]);
+        rightIndex++;
+      }
+    }
+
+    return result.concat(left.slice(leftIndex)).concat(right.slice(rightIndex));
+  }
+
   p.setup = function () {
     p.createCanvas(width, height);
 
@@ -40,11 +70,12 @@ let sketch = function (p) {
   class Point {
     x: number;
     y: number;
-    p;
+    p: p5;
 
-    constructor(x: number, y: number) {
+    constructor(x: number, y: number, p: p5) {
       this.x = x;
       this.y = y;
+      this.p = p;
     }
 
     draw(): void {
@@ -67,11 +98,11 @@ let sketch = function (p) {
       if (this.x === that.x && this.y === that.y) {
         return Number.NEGATIVE_INFINITY;
       }
-      
+
       if (this.x === that.x) {
         return Number.POSITIVE_INFINITY;
       }
-      
+
       if (this.y === that.y) {
         return 0;
       }
@@ -101,7 +132,7 @@ let sketch = function (p) {
     toString(): string {
       // DO NOT MODIFY
 
-      return `${this.p} -> ${this.q}`
+      return `${this.p} -> ${this.q}`;
     }
   }
 
@@ -155,19 +186,22 @@ let sketch = function (p) {
       for (let i = 0; i < n; i++) {
         const origin = points[i];
 
-        sortedPoints.sort((a, b) => origin.slopeTo(a) - origin.slopeTo(b));
+        // Create a copy of sortedPoints before sorting
+        const sortedCopy = sortedPoints.slice();
+
+        sortedCopy.sort((a, b) => origin.slopeTo(a) - origin.slopeTo(b));
 
         let count = 1;
-        let currentSlope = origin.slopeTo(sortedPoints[0]);
+        let currentSlope = origin.slopeTo(sortedCopy[0]);
 
         for (let j = 1; j < n; j++) {
-          const slope = origin.slopeTo(sortedPoints[j]);
+          const slope = origin.slopeTo(sortedCopy[j]);
 
           if (slope === currentSlope) {
             count++;
           } else {
             if (count >= 3) {
-              const segment = new LineSegment(origin, sortedPoints[j - 1]);
+              const segment = new LineSegment(origin, sortedCopy[j - 1]);
               this.collinearSegments.push(segment);
             }
 
@@ -177,7 +211,7 @@ let sketch = function (p) {
         }
 
         if (count >= 3) {
-          const segment = new LineSegment(origin, sortedPoints[n - 1]);
+          const segment = new LineSegment(origin, sortedCopy[n - 1]);
           this.collinearSegments.push(segment);
         }
       }
@@ -193,30 +227,30 @@ let sketch = function (p) {
   }
 
   // Declare your point objects here~
-  const point = new Point(1234, 5678);
-  const point2 = new Point(32000, 10000);
+  const point = new Point(1234, 5678, p);
+  const point2 = new Point(32000, 10000, p);
 
   // from input6.txt
   const points: Point[] = [
-    new Point(19000, 10000),
-    new Point(18000, 10000),
-    new Point(32000, 10000),
-    new Point(21000, 10000),
-    new Point(1234, 5678),
-    new Point(14000, 10000),
+    new Point(19000, 10000, p),
+    new Point(18000, 10000, p),
+    new Point(32000, 10000, p),
+    new Point(21000, 10000, p),
+    new Point(1234, 5678, p),
+    new Point(14000, 10000, p),
   ];
 
   p.draw = function () {
     p.translate(padding, height - padding);
-    p.scale(1/100, -1/100);
-
-    // Call your draw and drawTo here.
+    p.scale(1 / 100, -1 / 100);
 
     point.draw();
     point2.draw();
     point.drawTo(point2);
 
-    for (const point of points) {
+    const sortedPoints = mergeSort(points);
+
+    for (const point of sortedPoints) {
       point.draw();
     }
 

@@ -88,35 +88,94 @@ let sketch = function (p) {
     toString(): string {
       // DO NOT MODIFY
 
-      return `${this.p} -> ${this.q}`
+      return `${this.p} -> ${this.q}`;
     }
   }
 
   class BruteCollinearPoints {
+    private collinearSegments: LineSegment[] = [];
+
     constructor(points: Point[]) {
-      // YOUR CODE HERE
+      const n = points.length;
+
+      for (let i = 0; i < n; i++) {
+        for (let j = i + 1; j < n; j++) {
+          for (let k = j + 1; k < n; k++) {
+            for (let l = k + 1; l < n; l++) {
+              const slope1 = points[i].slopeTo(points[j]);
+              const slope2 = points[i].slopeTo(points[k]);
+              const slope3 = points[i].slopeTo(points[l]);
+
+              if (slope1 === slope2 && slope1 === slope3) {
+                const minPoint = Math.min(i, j, k, l);
+                const maxPoint = Math.max(i, j, k, l);
+                const segment = new LineSegment(
+                  points[minPoint],
+                  points[maxPoint]
+                );
+
+                this.collinearSegments.push(segment);
+              }
+            }
+          }
+        }
+      }
     }
 
     numberOfSegments(): number {
-      // YOUR CODE HERE
+      return this.collinearSegments.length;
     }
 
-    segments(): LineSegment[] {
-      // YOUR CODE HERE
+    getSegments(): LineSegment[] {
+      return this.collinearSegments;
     }
   }
 
   class FastCollinearPoints {
+    private collinearSegments: LineSegment[] = [];
+
     constructor(points: Point[]) {
-      // YOUR CODE HERE
+      const n = points.length;
+
+      const sortedPoints = points.slice();
+
+      for (let i = 0; i < n; i++) {
+        const origin = points[i];
+
+        sortedPoints.sort((a, b) => origin.slopeTo(a) - origin.slopeTo(b));
+
+        let count = 1;
+        let currentSlope = origin.slopeTo(sortedPoints[0]);
+
+        for (let j = 1; j < n; j++) {
+          const slope = origin.slopeTo(sortedPoints[j]);
+
+          if (slope === currentSlope) {
+            count++;
+          } else {
+            if (count >= 3) {
+              const segment = new LineSegment(origin, sortedPoints[j - 1]);
+              this.collinearSegments.push(segment);
+            }
+
+            count = 1;
+            currentSlope = slope;
+          }
+        }
+
+        if (count >= 3) {
+          const segment = new LineSegment(origin, sortedPoints[n - 1]);
+          this.collinearSegments.push(segment);
+        }
+      }
     }
 
     numberOfSegments(): number {
-      // YOUR CODE HERE
+      return this.collinearSegments.length;
     }
 
-    segments(): LineSegment[] {
-      // YOUR CODE HERE
+    getSegments(): LineSegment[] {
+      return this.collinearSegments;
     }
   }
 
@@ -136,7 +195,7 @@ let sketch = function (p) {
 
   p.draw = function () {
     p.translate(padding, height - padding);
-    p.scale(1/100, -1/100);
+    p.scale(1 / 100, -1 / 100);
 
     // Call your draw and drawTo here.
 

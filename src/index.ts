@@ -4,7 +4,7 @@ const width: number = 800;
 const height: number = 500;
 const padding: number = 50;
 
-let sketch = function (p: p5) {
+let sketch = function (p) {
   p.setup = function () {
     p.createCanvas(width, height);
 
@@ -40,7 +40,7 @@ let sketch = function (p: p5) {
   class Point {
     x: number;
     y: number;
-    // p;
+    p;
 
     constructor(x: number, y: number) {
       this.x = x;
@@ -64,6 +64,17 @@ let sketch = function (p: p5) {
     }
 
     slopeTo(that: Point): number {
+      if (this.x === that.x && this.y === that.y) {
+        return Number.NEGATIVE_INFINITY;
+      }
+      
+      if (this.x === that.x) {
+        return Number.POSITIVE_INFINITY;
+      }
+      
+      if (this.y === that.y) {
+        return 0;
+      }
       return (that.y - this.y) / (that.x - this.x);
     }
   }
@@ -90,7 +101,7 @@ let sketch = function (p: p5) {
     toString(): string {
       // DO NOT MODIFY
 
-      return `${this.p} -> ${this.q}`;
+      return `${this.p} -> ${this.q}`
     }
   }
 
@@ -181,6 +192,11 @@ let sketch = function (p: p5) {
     }
   }
 
+  // Declare your point objects here~
+  const point = new Point(1234, 5678);
+  const point2 = new Point(32000, 10000);
+
+  // from input6.txt
   const points: Point[] = [
     new Point(19000, 10000),
     new Point(18000, 10000),
@@ -192,7 +208,13 @@ let sketch = function (p: p5) {
 
   p.draw = function () {
     p.translate(padding, height - padding);
-    p.scale(1 / 100, -1 / 100);
+    p.scale(1/100, -1/100);
+
+    // Call your draw and drawTo here.
+
+    point.draw();
+    point2.draw();
+    point.drawTo(point2);
 
     for (const point of points) {
       point.draw();
@@ -200,6 +222,7 @@ let sketch = function (p: p5) {
 
     const collinear = new FastCollinearPoints(points);
     for (const segment of collinear.getSegments()) {
+      console.log(segment.toString());
       segment.draw();
     }
   };

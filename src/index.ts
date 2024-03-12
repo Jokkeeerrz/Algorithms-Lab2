@@ -63,7 +63,20 @@ let sketch = function (p) {
       p.line(this.x, this.y, that.x, that.y);
     }
 
-    slopeTo(that: Point): number {}
+    slopeTo(that: Point): number {
+      if (this.x === that.x && this.y === that.y) {
+        return Number.NEGATIVE_INFINITY;
+      }
+      
+      if (this.x === that.x) {
+        return Number.POSITIVE_INFINITY;
+      }
+      
+      if (this.y === that.y) {
+        return 0;
+      }
+      return (that.y - this.y) / (that.x - this.x);
+    }
   }
 
   class LineSegment {
@@ -107,18 +120,71 @@ let sketch = function (p) {
   }
 
   class FastCollinearPoints {
+    private segmentsList: LineSegment[] = [];
+  
     constructor(points: Point[]) {
-      // YOUR CODE HERE
+      if (!points || points.includes(null)) {
+        throw new Error("Argument to constructor cannot be null, and points array cannot contain null elements.");
+      }
+  
+      // Check for repeated points
+      for (let i = 0; i < points.length; i++) {
+        for (let j = i + 1; j < points.length; j++) {
+          if (points[i].x === points[j].x && points[i].y === points[j].y) {
+            throw new Error("Repeated points are not allowed.");
+          }
+        }
+      }
+  
+      // Sort the points to maintain the order of original points
+      const sortedPoints = points.slice().sort((a, b) => {
+        if (a.y !== b.y) {
+          return a.y - b.y;
+        }
+        return a.x - b.x;
+      });
+  
+      const n = sortedPoints.length;
+  
+      for (let i = 0; i < n; i++) {
+        const p = sortedPoints[i];
+        const slopes: { [slope: number]: Point[] } = {};
+  
+        // Sort the points according to slopes with respect to p
+        for (let j = 0; j < n; j++) {
+          if (j === i) continue;
+          const q = sortedPoints[j];
+          const slope = p.slopeTo(q);
+  
+          if (!slopes[slope]) {
+            slopes[slope] = [];
+          }
+          slopes[slope].push(q);
+        }
+  
+        // Check for collinear points
+        for (const slope in slopes) {
+          const collinearPoints = slopes[slope];
+          if (collinearPoints.length >= 3) {
+            collinearPoints.push(p);
+            collinearPoints.sort((a, b) => a.compareTo(b)); // Ensure consistent order
+            if (p.compareTo(collinearPoints[0]) === 0) {
+              this.segmentsList.push(new LineSegment(collinearPoints[0], collinearPoints[collinearPoints.length - 1]));
+            }
+          }
+        }
+      }
     }
-
+  
     numberOfSegments(): number {
-      // YOUR CODE HERE
+      return this.segmentsList.length;
     }
-
+  
     segments(): LineSegment[] {
-      // YOUR CODE HERE
+      return this.segmentsList.slice(); // Return a copy to avoid modifying the internal state
     }
   }
+  
 
   // Declare your point objects here~
   // const point = new Point(19000, 10000);
